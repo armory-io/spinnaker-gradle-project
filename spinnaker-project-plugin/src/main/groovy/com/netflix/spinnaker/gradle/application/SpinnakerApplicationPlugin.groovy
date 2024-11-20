@@ -19,7 +19,11 @@ class SpinnakerApplicationPlugin implements Plugin<Project> {
         appConvention.applicationDistribution.from(project.file("config/${appName}.yml")) {
             into('config')
         }
-        appConvention.applicationDefaultJvmArgs << "-Djava.security.egd=file:/dev/./urandom"
+        appConvention.applicationDefaultJvmArgs << "-Djava.security.egd=file:/dev/./urandom" +
+          // Required for some google SDK behavior when loading certs as part of creds
+          " --add-exports=java.base/sun.security.x509=ALL-UNNAMED" +
+          " --add-exports=java.base/sun.security.pkcs=ALL-UNNAMED" +
+          " --add-exports=java.base/sun.security.rsa=ALL-UNNAMED"
 
         project.tasks.withType(CreateStartScripts) {
             it.defaultJvmOpts = appConvention.applicationDefaultJvmArgs + ["-Dspring.config.import=optional:/opt/spinnaker/config/"]
